@@ -57,7 +57,7 @@ private:
     T value = 0;
 
 public:
-    MA(uint16_t len, T init); // constructor
+    MA(uint16_t len, T init = 0); // constructor
     ~MA(); // destructor
     T update(const T); // Calculate new moving Average
     T getValue();
@@ -85,9 +85,11 @@ MA<T>::MA(uint16_t len, T init)
     index = 0; // start with index 0
     sum = 0;
 
-    for (size_t i = 0; i < n; i++) {
-        data[i] = init;
-        sum += init;
+    if (init) {
+        for (size_t i = 0; i < n; i++) {
+            data[i] = init;
+            sum += init;
+        }
     }
 }
 
