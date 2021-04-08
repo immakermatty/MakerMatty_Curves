@@ -88,9 +88,10 @@ MA<T>::MA(uint16_t len, T init)
     if (init) {
         for (uint16_t i = 0; i < n; i++) {
             data[i] = init;
-            sum += (uint32_t)data[i];
+            sum += (uint32_t)init;
         }
         filled = true;
+        value = init;
     }
 }
 
