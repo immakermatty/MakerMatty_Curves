@@ -78,7 +78,7 @@ MA<T>::MA(uint16_t len, T init)
     // allocate an array of size T
     n = len >= 1 ? len : 1;
 
-    data = new T[n]();
+    data = new T[n];
     assert(data != NULL);
 
     filled = false; // this becomes true when the array is minimally filled once
@@ -86,10 +86,11 @@ MA<T>::MA(uint16_t len, T init)
     sum = 0;
 
     if (init) {
-        for (size_t i = 0; i < n; i++) {
+        for (uint16_t i = 0; i < n; i++) {
             data[i] = init;
-            sum += init;
+            sum += (uint32_t)data[i];
         }
+        filled = true;
     }
 }
 
