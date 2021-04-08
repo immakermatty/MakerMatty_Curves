@@ -57,7 +57,7 @@ private:
     T value = 0;
 
 public:
-    MA(uint16_t len); // constructor
+    MA(uint16_t len, T init); // constructor
     ~MA(); // destructor
     T update(const T); // Calculate new moving Average
     T getValue();
@@ -73,7 +73,7 @@ public:
  * due to lack of garbage collection in Arduino
  */
 template <class T>
-MA<T>::MA(uint16_t len)
+MA<T>::MA(uint16_t len, T init)
 {
     // allocate an array of size T
     n = len >= 1 ? len : 1;
@@ -84,6 +84,11 @@ MA<T>::MA(uint16_t len)
     filled = false; // this becomes true when the array is minimally filled once
     index = 0; // start with index 0
     sum = 0;
+
+    for (size_t i = 0; i < n; i++) {
+        data[i] = init;
+        sum += init;
+    }
 }
 
 /**
