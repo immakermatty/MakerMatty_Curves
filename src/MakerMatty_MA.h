@@ -61,6 +61,7 @@ public:
     ~MA(); // destructor
     T update(const T); // Calculate new moving Average
     T getValue();
+    void setValue(const T value);
 
     const T& Value = value;
 };
@@ -85,11 +86,11 @@ MA<T>::MA(uint16_t len, T init)
     index = 0; // start with index 0
     sum = 0;
 
-    if (init) {
-        for (uint16_t i = 0; i < n; i++) {
+    if (init != 0) {
+        for (size_t i = 0; i < n; i++) {
             data[i] = init;
-            sum += (uint32_t)init;
         }
+        sum = init * n;
         filled = true;
         value = init;
     }
@@ -143,6 +144,22 @@ template <class T>
 T MA<T>::getValue()
 {
     return value;
+}
+
+/**
+ * @name setValue
+ * @returns T returns the new moving average.
+ * During the first filling of the data array the moving average is determined on acc_data less
+ * amount of entries. This function keeps track of this situation and calculates the correct
+ * average on the number of items listed.
+ */
+template <class T>
+void MA<T>::setValue(const T value)
+{
+    for (size_t i = 0; i < n; i++) {
+        data[i] = value;
+    }
+    sum = value * n;
 }
 
 #endif
