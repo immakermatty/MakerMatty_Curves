@@ -49,26 +49,26 @@
 template <class T>
 class MA {
 private:
-    T* data; // Type pointer elements in our array
-    uint16_t index; // current index
-    int32_t sum; // sum for rest
-    bool filled; // used to determine if we went through the whole array
-    uint16_t n; // number of elements in our array
-    T value = 0;
+    T* m_data; // Type pointer elements in our array
+    uint16_t m_index; // current m_index
+    int32_t m_sum; // m_sum for rest
+    bool m_filled; // used to determine if we went through the whole array
+    uint16_t m_n; // number of elements in our array
+    T m_value = 0;
 
 public:
     MA(uint16_t len, T init = 0); // constructor
     ~MA(); // destructor
     T update(const T); // Calculate new moving Average
     T getValue();
-    void setValue(const T value);
+    void setValue(const T m_value);
 
-    const T& Value = value;
+    const T& Value = m_value;
 };
 
 /**
  * @name MA Constructor
- * @param numberOf_data number of data in the array
+ * @param numberOf_data number of m_data in the array
  * Creates dynamically an array of our type values and initializes the array
  * and some local variables. There is no destructor as this is quite useless
  * due to lack of garbage collection in Arduino
@@ -77,22 +77,22 @@ template <class T>
 MA<T>::MA(uint16_t len, T init)
 {
     // allocate an array of size T
-    n = len >= 1 ? len : 1;
+    m_n = len >= 1 ? len : 1;
 
-    data = new T[n];
-    assert(data != NULL);
+    m_data = new T[m_n];
+    assert(m_data != NULL);
 
-    filled = false; // this becomes true when the array is minimally filled once
-    index = 0; // start with index 0
-    sum = 0;
+    m_filled = false; // this becomes true when the array is minimally m_filled once
+    m_index = 0; // start with m_index 0
+    m_sum = 0;
 
     if (init != 0) {
-        for (size_t i = 0; i < n; i++) {
-            data[i] = init;
+        for (size_t i = 0; i < m_n; i++) {
+            m_data[i] = init;
         }
-        sum = init * n;
-        filled = true;
-        value = init;
+        m_sum = init * m_n;
+        m_filled = true;
+        m_value = init;
     }
 }
 
@@ -103,63 +103,65 @@ MA<T>::MA(uint16_t len, T init)
 template <class T>
 MA<T>::~MA()
 {
-    delete[] data;
-    data = NULL;
+    delete[] m_data;
+    m_data = NULL;
 }
 
 /**
  * @name show
- * @param value	value to be added to array
+ * @param m_value	m_value to be added to array
  * @returns T returns the new moving average.
- * During the first filling of the data array the moving average is determined on acc_data less
+ * During the first filling of the m_data array the moving average is determined on acc_data less
  * amount of entries. This function keeps track of this situation and calculates the correct
  * average on the number of items listed.
  */
 template <class T>
 T MA<T>::update(const T val)
 {
-    if (index >= n) {
-        index = 0; // reset index
-        filled = true; // we looped through at least once
+    if (m_index >= m_n) {
+        m_index = 0; // reset m_index
+        m_filled = true; // we looped through at least once
     }
 
-    sum = sum - (int32_t)data[index] + (int32_t)val;
+    m_sum = m_sum - (int32_t)m_data[m_index] + (int32_t)val;
 
-    data[index] = val;
-    index++;
+    m_data[m_index] = val;
+    m_index++;
 
-    value = filled ? (T)(sum / (int32_t)n) : (T)(sum / (int32_t)index);
+    m_value = m_filled ? (T)(m_sum / (int32_t)m_n) : (T)(m_sum / (int32_t)m_index);
 
-    return value;
+    return m_value;
 }
 
 /**
  * @name getValue
  * @returns T returns the new moving average.
- * During the first filling of the data array the moving average is determined on acc_data less
+ * During the first filling of the m_data array the moving average is determined on acc_data less
  * amount of entries. This function keeps track of this situation and calculates the correct
  * average on the number of items listed.
  */
 template <class T>
 T MA<T>::getValue()
 {
-    return value;
+    return m_value;
 }
 
 /**
  * @name setValue
  * @returns T returns the new moving average.
- * During the first filling of the data array the moving average is determined on acc_data less
+ * During the first filling of the m_data array the moving average is determined on acc_data less
  * amount of entries. This function keeps track of this situation and calculates the correct
  * average on the number of items listed.
  */
 template <class T>
-void MA<T>::setValue(const T value)
+void MA<T>::setValue(const T val)
 {
-    for (size_t i = 0; i < n; i++) {
-        data[i] = value;
+    for (size_t i = 0; i < m_n; i++) {
+        m_data[i] = val;
     }
-    sum = value * n;
+    m_sum = val * m_n;
+    m_filled = true;
+    m_value = val;
 }
 
 #endif
