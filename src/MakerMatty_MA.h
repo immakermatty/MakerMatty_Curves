@@ -92,7 +92,7 @@ MA<T>::MA(uint16_t len, T init)
         m_filled = true;
         m_value = init;
     } else {
-        memset(m_data, 0, m_n);
+        memset(m_data, 0, m_n * sizeof(T));
         m_sum = 0;
         m_filled = false; // this becomes true when the array is minimally m_filled once
         m_value = 0;
@@ -129,7 +129,7 @@ T MA<T>::update(const T val)
     m_sum = m_sum - (int32_t)m_data[m_index] + (int32_t)val;
 
     m_data[m_index] = val;
-    m_index++;
+    ++m_index;
 
     m_value = m_filled ? (T)(m_sum / (int32_t)m_n) : (T)(m_sum / (int32_t)m_index);
 
