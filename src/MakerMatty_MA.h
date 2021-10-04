@@ -80,11 +80,9 @@ MA<T>::MA(uint16_t len, T init)
     m_n = len >= 1 ? len : 1;
 
     m_data = new T[m_n];
-    assert(m_data != NULL);
+    // assert(m_data != NULL);
 
-    m_filled = false; // this becomes true when the array is minimally m_filled once
     m_index = 0; // start with m_index 0
-    m_sum = 0;
 
     if (init != 0) {
         for (size_t i = 0; i < m_n; i++) {
@@ -93,6 +91,11 @@ MA<T>::MA(uint16_t len, T init)
         m_sum = init * m_n;
         m_filled = true;
         m_value = init;
+    } else {
+        memset(m_data, 0, m_n);
+        m_sum = 0;
+        m_filled = false; // this becomes true when the array is minimally m_filled once
+        m_value = 0;
     }
 }
 
