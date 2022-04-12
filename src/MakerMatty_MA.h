@@ -1,7 +1,7 @@
 /**
  * Author	: Nico Verduin (nico.verduin@ziggo.nl)
  * Date		: 31-8-2016
- * 
+ *
  * Modified by @makermatty (maker@matejsuchanek.cz)
  * Date     : 15-6-2020
  *
@@ -43,28 +43,52 @@
 
 #include <Arduino.h>
 
+#include "stl_exchange.h"
+
 /**
-  * Moving Average Class as acc_data template for non floating point values
-  */
+ * Moving Average Class as acc_data template for non floating point values
+ */
 template <class T>
 class MA {
+
+public:
+    MA();
+    MA(const uint16_t n, T init = 0);
+    MA(const MA<T>& other); // copy contructor
+    MA(MA<T>&& other)
+    noexcept; // move contructor
+    ~MA();
+
+    T update(const T);
+    T getValue() const;
+    void setValue(const T m_value);
+
+    // const T& Value = m_value;
+
+    MA<T>& operator=(const MA<T>& other);
+    MA<T>& operator=(MA<T>&& other) noexcept;
+
+    void swap(MA<T>& other) noexcept;
+
 private:
+    uint16_t m_n; // number of elements in our array
     T* m_data; // Type pointer elements in our array
     uint16_t m_index; // current m_index
     int32_t m_sum; // m_sum for rest
     bool m_filled; // used to determine if we went through the whole array
-    uint16_t m_n; // number of elements in our array
     T m_value = 0;
-
-public:
-    MA(uint16_t len, T init = 0); // constructor
-    ~MA(); // destructor
-    T update(const T); // Calculate new moving Average
-    T getValue();
-    void setValue(const T m_value);
-
-    const T& Value = m_value;
 };
+
+template <class T>
+MA<T>::MA()
+    : m_n(0)
+    , m_data(nullptr)
+    , m_index(0)
+    , m_sum(0)
+    , m_filled(false)
+    , m_value(0)
+{
+}
 
 /**
  * @name MA Constructor
@@ -74,16 +98,11 @@ public:
  * due to lack of garbage collection in Arduino
  */
 template <class T>
-MA<T>::MA(uint16_t len, T init)
+MA<T>::MA(const uint16_t n, T init)
+    : m_n(n)
+    , m_data(new T[n])
+    , m_index(0)
 {
-    // allocate an array of size T
-    m_n = len >= 1 ? len : 1;
-
-    m_data = new T[m_n];
-    // assert(m_data != NULL);
-
-    m_index = 0; // start with m_index 0
-
     if (init != 0) {
         for (size_t i = 0; i < m_n; i++) {
             m_data[i] = init;
@@ -94,9 +113,35 @@ MA<T>::MA(uint16_t len, T init)
     } else {
         memset(m_data, 0, m_n * sizeof(T));
         m_sum = 0;
-        m_filled = false; // this becomes true when the array is minimally m_filled once
+        m_filled = false;
         m_value = 0;
     }
+}
+
+// copy contructor
+template <class T>
+MA<T>::MA(const MA<T>& other)
+    : m_n(other.m_n)
+    , m_data(new T[other.m_n])
+    , m_index(other.m_index)
+    , m_sum(other.m_sum)
+    , m_filled(other.m_filled)
+    , m_value(other.m_value)
+{
+    memcpy(m_data, other.m_data, other.m_n * sizeof(T));
+}
+
+template <class T>
+MA<T>::MA(MA<T>&& other) noexcept
+    // , class(std::move(other.class)) // explicit move of a member of class type
+    // , variable(std::exchange(other.variable, 0)) // explicit move of a member of non-class type
+    : m_n(std::exchange(other.m_n, 0))
+    , m_data(std::exchange(other.m_data, nullptr))
+    , m_index(std::exchange(other.m_index, 0))
+    , m_sum(std::exchange(other.m_sum, 0))
+    , m_filled(std::exchange(other.m_filled, false))
+    , m_value(std::exchange(other.m_value, 0))
+{
 }
 
 /**
@@ -107,7 +152,6 @@ template <class T>
 MA<T>::~MA()
 {
     delete[] m_data;
-    m_data = NULL;
 }
 
 /**
@@ -144,7 +188,7 @@ T MA<T>::update(const T val)
  * average on the number of items listed.
  */
 template <class T>
-T MA<T>::getValue()
+T MA<T>::getValue() const
 {
     return m_value;
 }
@@ -166,5 +210,79 @@ void MA<T>::setValue(const T val)
     m_filled = true;
     m_value = val;
 }
+
+// copy assignment
+
+template <class T>
+MA<T>& MA<T>::operator=(const MA<T>& other)
+{
+    if (this != &other) {
+        MA<T>(other).swap(*this); // Copy-constructor and non-throwing swap
+    }
+
+    // Old resources are released with the destruction of the temporary above
+    return *this;
+}
+
+// move assignment
+template <class T>
+MA<T>& MA<T>::operator=(MA<T>&& other) noexcept
+{
+    // Guard self assignment
+    if (this == &other)
+        return *this;
+
+    m_n = std::exchange(other.m_n, 0);
+    m_data = std::exchange(other.m_data, nullptr);
+    m_index = std::exchange(other.m_index, 0);
+    m_sum = std::exchange(other.m_sum, 0);
+    m_filled = std::exchange(other.m_filled, false);
+    m_value = std::exchange(other.m_value, 0);
+
+    return *this;
+}
+
+template <class T>
+void MA<T>::swap(MA<T>& other) noexcept // Also see non-throwing swap idiom
+{
+    std::swap(this->m_n, other.m_n);
+    std::swap(this->m_data, other.m_data);
+    std::swap(this->m_index, other.m_index);
+    std::swap(this->m_sum, other.m_sum);
+    std::swap(this->m_filled, other.m_filled);
+    std::swap(this->m_value, other.m_value);
+}
+
+// // copy assignment
+// Canvas& Canvas::operator=(const Canvas& other)
+// {
+//     // Guard self assignment
+//     if (this == &other)
+//         return *this;
+
+//     m_length = other.m_length;
+//     m_label = other.m_label;
+
+//     return *this;
+// }
+
+// // move assignment
+// Canvas& Canvas::operator=(Canvas&& other) noexcept
+// {
+//     // Guard self assignment
+//     if (this == &other)
+//         return *this;
+
+//     m_length = std::exchange(other.m_length, 0);
+//     m_label = std::exchange(other.m_label, 0);
+
+//     return *this;
+// }
+
+// void Canvas::swap(Canvas& other) noexcept // Also see non-throwing swap idiom
+// {
+//     std::swap(this->m_length, other.m_length);
+//     std::swap(this->m_label, other.m_label);
+// }
 
 #endif
