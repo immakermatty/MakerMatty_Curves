@@ -33,7 +33,7 @@ public:
         value[2] = value[1];
         value[1] = value[0];
 
-        float k = 2.0 / (n + 1);
+        const float k = 2.0 / (n + 1);
         value[0] = val * k + value[1] * (1.0 - k);
 
         // Serial.println(String(value[0]) + ", " + String(value[1]) + ", " + String(value[2]));
