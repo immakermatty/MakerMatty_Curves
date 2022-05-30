@@ -81,7 +81,7 @@ private:
 
 template <class T>
 MA<T>::MA()
-    : m_n(0)
+    : m_n(1)
     , m_data(nullptr)
     , m_index(0)
     , m_sum(0)
@@ -99,10 +99,14 @@ MA<T>::MA()
  */
 template <class T>
 MA<T>::MA(const uint16_t n, T init)
-    : m_n(n)
-    , m_data(new T[n])
+    : m_n(n == 0 ? 1 : n)
+    , m_data(new T[m_n])
     , m_index(0)
 {
+    if (n == 0) {
+        log_e("n must not be 0");
+    }
+
     if (init != 0) {
         for (size_t i = 0; i < m_n; i++) {
             m_data[i] = init;
