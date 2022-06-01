@@ -1,56 +1,61 @@
-/** 
+/**
  * Author	: @makermatty (maker.matejsuchanek.cz)
- * Date		: 15-6-2020
- * 
+ * Date		: 1-6-2022
+ *
  * Generic Exponential Moving Average Class
  */
 
-class EMA
-{
-private:
-    int n;
-    float value[3];
+class EMA {
 
 public:
     EMA()
+        : m_n(1)
     {
-        n = 1;
-        value[0] = 0;
-        value[1] = 0;
-        value[2] = 0;
+        m_values[0] = 0;
+        m_values[1] = 0;
+        m_values[2] = 0;
     }
 
-    EMA(int n, float val)
+    EMA(int n, float value)
+        : m_n(n)
     {
-        n = n;
-        value[0] = val;
-        value[1] = val;
-        value[2] = val;
+        this->setValue(value);
     }
 
-    void update(float val)
+    float update(float val)
     {
-        value[2] = value[1];
-        value[1] = value[0];
+        m_values[2] = m_values[1];
+        m_values[1] = m_values[0];
 
-        const float k = 2.0 / (n + 1);
-        value[0] = val * k + value[1] * (1.0 - k);
+        const float k = 2.0 / (m_n + 1);
+        return m_values[0] = val * k + m_values[1] * (1.0 - k);
 
-        // Serial.println(String(value[0]) + ", " + String(value[1]) + ", " + String(value[2]));
+        // Serial.println(String(m_values[0]) + ", " + String(m_values[1]) + ", " + String(m_values[2]));
     }
 
     float getValue() const
     {
-        return value[0];
+        return m_values[0];
+    }
+
+    void setValue(const float value)
+    {
+        m_values[0] = value;
+        m_values[1] = value;
+        m_values[2] = value;
     }
 
     float getSlope() const
     {
-        return value[0] - value[1];
+        return m_values[0] - m_values[1];
     }
 
     float getCurve() const
     {
-        return (value[0] - value[1]) - (value[1] - value[2]);
+        return (m_values[0] - m_values[1]) - (m_values[1] - m_values[2]);
     }
+
+private:
+    int m_n;
+    float m_values[3];
 };
