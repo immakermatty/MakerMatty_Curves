@@ -59,3 +59,39 @@ private:
     int m_n;
     float m_values[3];
 };
+
+template <int N>
+class EMATemplated {
+
+public:
+    EMATemplated()
+        : m_value(0)
+    {
+    }
+
+    EMATemplated(float value)
+        : m_value(value)
+    {
+    }
+
+    float update(float val)
+    {
+        constexpr float k = 2.0 / (N + 1.0);
+        return val * k + m_value * (1.0 - k);
+
+        // Serial.println(String(m_values[0]) + ", " + String(m_values[1]) + ", " + String(m_values[2]));
+    }
+
+    float getValue() const
+    {
+        return m_value;
+    }
+
+    void setValue(const float value)
+    {
+        m_value = value;
+    }
+
+private:
+    float m_value;
+};
