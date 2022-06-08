@@ -77,7 +77,7 @@ public:
     float update(float val)
     {
         constexpr float k = 2.0 / (N + 1.0);
-        return val * k + m_value * (1.0 - k);
+        return m_value = val * k + m_value * (1.0 - k);
 
         // Serial.println(String(m_values[0]) + ", " + String(m_values[1]) + ", " + String(m_values[2]));
     }
